@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 import time
 import openpyxl
 from openpyxl.drawing.image import Image
+from openpyxl.styles import Font, Border, Side
 import urllib.request
 import datetime
 import os
@@ -10,6 +11,17 @@ from selenium.webdriver.common.keys import Keys
 
 
 class Order:
+    def __init__(self, name, street, apartment, city, country, image, final, date, isStarted):
+        self.name = name
+        self.street = street
+        self.apartment = apartment
+        self.city = city
+        self.country = country
+        self.image = image
+        self.final = final
+        self.date = date
+        self.isStarred = isStarted
+
     name = ""
     street = ""
     apartment = ""
@@ -53,7 +65,15 @@ driver = webdriver.Edge()
 
 workbook = openpyxl.Workbook()
 sheet = workbook.active
-workbook.save(f"./{folderPath}/{stringToday} excel/sample.xlsx")
+sheet.column_dimensions['A'].width = 11
+sheet.column_dimensions['B'].width = 11
+sheet.column_dimensions['C'].width = 11
+sheet.column_dimensions['D'].width = 11
+sheet.column_dimensions['E'].width = 40
+sheet.column_dimensions['F'].width = 30
+workbook.save(f"./{folderPath}/{stringToday} excel/{stringToday}.xlsx")
+cell_row = 1
+alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 driver.get("https://www.etsy.com/")
@@ -66,11 +86,11 @@ signIn.click()
 time.sleep(0.5)
 
 emailInput = driver.find_element(By.XPATH, "//*[@id='join_neu_email_field']")
-emailInput.send_keys("*******************")
+emailInput.send_keys("estveryin15@gmail.com")
 time.sleep(0.3)
 passwordInput = driver.find_element(
     By.XPATH, "//*[@id='join_neu_password_field']")
-passwordInput.send_keys("*****************")
+passwordInput.send_keys("2022Th3005")
 time.sleep(0.3)
 
 signInButton = driver.find_element(
@@ -107,8 +127,9 @@ while True:
 
         try:
             data = driver.find_element(By.XPATH, xpath)
-            order = Order()
-            order.date = stringToday
+            order = Order("", "", "", "", "", [], [], str(today.month) + "/" + str(today.day) + "/" + str(today.year), False)
+            workbook = openpyxl.load_workbook(f"./{folderPath}/{stringToday} excel/{stringToday}.xlsx")
+            sheet = workbook.active
         except:
             break
 
@@ -134,8 +155,16 @@ while True:
             driver.switch_to.window(driver.window_handles[1])
 
             time.sleep(1)
-            imgSrc = driver.find_element(By.XPATH, "/html/body/main/div[1]/div[2]/div/div/div[1]/div[1]/div/div/div/div/div[1]/ul/li[1]/img").get_attribute("src")
-            fileName = driver.find_element(By.XPATH, "/html/body/main/div[1]/div[2]/div/div/div[1]/div[2]/div/div[4]/h1").text
+            
+            try:
+                imgSrc = driver.find_element(By.XPATH, "/html/body/main/div[1]/div[2]/div/div/div[1]/div[1]/div/div/div/div/div[1]/ul/li[1]/img").get_attribute("src")
+            except:
+                imgSrc = driver.find_element(By.XPATH, "//*[@id='content']/div/div[1]/div/div/div[2]/div[1]/div/img")
+            
+            try:
+                fileName = driver.find_element(By.XPATH, "/html/body/main/div[1]/div[2]/div/div/div[1]/div[2]/div/div[4]/h1").text
+            except:
+                fileName = driver.find_element(By.XPATH, "/html/body/main/div[1]/div[2]/div/div/div[1]/div[2]/div/div[3]/h1").text
 
             try:
                 urllib.request.urlretrieve(imgSrc, f"./{folderPath}/{stringToday} fotograflar/{fileName}.jpg")
@@ -226,23 +255,104 @@ while True:
 
             j += 1
 
+        print(len(order.image))
+        l = 0
+        for img in order.image:
+            imgUrl = f"./{folderPath}/{stringToday} excel/fotograflar/{order.name}.jpg"
+            c = 1
+            while True:
+                if not os.path.exists(imgUrl):
+                    urllib.request.urlretrieve(img, imgUrl)
+                    break
+                else:
+                    imgUrl = f"./{folderPath}/{stringToday} excel/fotograflar/{order.name}({str(c)}).jpg"
+                    c += 1
+            
+            image = Image(imgUrl)
+            # img_cell = sheet.cell(row=cell_row+1, column=l)
+            sheet.add_image(image, f"{alphabet[l]}{str(cell_row + 1)}")
+
+            sheet[f"{alphabet[l]}{str(cell_row + 5)}"] = order.final[l]
+            sheet[f"{alphabet[l]}{str(cell_row + 5)}"].font = Font(size=8, name="Arial Tur")
+            l += 1
+        
+        sheet[f"A{cell_row}"] = order.date
+        sheet[f"C{cell_row}"] = order.date
+        sheet[f"A{cell_row}"].font = Font(size=8, name="Arial Tur")
+        sheet[f"C{cell_row}"].font = Font(size=8, name="Arial Tur")
+
+        sheet[f"F{cell_row + 1}"] = "Tugce SONUC"
+        sheet[f"F{cell_row + 1}"].font = Font(size=11, name="Arial Tur")
+
+        sheet[f"F{cell_row + 2}"] = "Gaziosmanpasa Bulv."
+        sheet[f"F{cell_row + 2}"].font = Font(size=11, name="Arial Tur")
+
+        sheet[f"F{cell_row + 3}"] = "No:64 D:601 K:6 Yüncü İşhanı"
+        sheet[f"F{cell_row + 3}"].font = Font(size=10, name="Arial Tur")
+
+        sheet[f"F{cell_row + 4}"] = "Cankaya - İzmir"
+        sheet[f"F{cell_row + 4}"].font = Font(size=11, name="Arial Tur")
+
+
+
+        sheet[f"E{cell_row + 1}"] = "Ship To"
+        sheet[f"E{cell_row + 1}"].font = Font(size=11, name="Arial Tur")
+
+        sheet[f"E{cell_row + 2}"] = order.name
+        sheet[f"E{cell_row + 2}"].font = Font(size=9, name="Arial Tur", bold=True)
+
+        sheet[f"E{cell_row + 3}"] = order.street
+        sheet[f"E{cell_row + 3}"].font = Font(size=9, name="Tahoma")
+
+        sheet[f"E{cell_row + 4}"] = order.apartment
+        sheet[f"E{cell_row + 4}"].font = Font(size=9, name="Arial Tur")
+
+        sheet[f"E{cell_row + 5}"] = order.city
+        sheet[f"E{cell_row + 5}"].font = Font(size=9, name="Arial Tur")
+        
+        border = Border(
+            left=Side(border_style='thin', color='000000'),
+            right=Side(border_style='thin', color='000000'),
+            top=Side(border_style='thin', color='000000'),
+            bottom=Side(border_style='thin', color='000000')
+        )
+
+        # sheet[f"A{cell_row}:F{cell_row}"].border = border
+
+        if len(order.country) != 0:
+            sheet[f"E{cell_row + 6}"] = order.country
+            sheet[f"E{cell_row + 6}"].font = Font(size=9, name="Arial Tur")
+
+            sheet[f"F{cell_row + 6}"] = "35240   Turkey"
+            sheet[f"F{cell_row + 6}"].font = Font(size=11, name="Arial Tur")
+
+            # sheet[f"A{cell_row}:D{cell_row + 6}"].border = border
+            # sheet[f"E{cell_row}:E{cell_row + 6}"].border = border
+            # sheet[f"F{cell_row}:F{cell_row + 6}"].border = border
+
+            cell_row += 7
+        else:
+            sheet[f"F{cell_row + 5}"] = "35240   Turkey"
+            sheet[f"F{cell_row + 5}"].font = Font(size=11, name="Arial Tur")
+
+            # sheet[f"A{cell_row}:D{cell_row + 5}"].border = border
+            # sheet[f"E{cell_row}:E{cell_row + 5}"].border = border
+            # sheet[f"F{cell_row}:F{cell_row + 5}"].border = border
+
+            cell_row += 6
+
+
+        
         i += 1
 
+        workbook.save(f"./{folderPath}/{stringToday} excel/{stringToday}.xlsx")
     k += 1
 
 time.sleep(1)
 
 driver.quit()
 
-
-# /html/body/div[3]/div/div[1]/div/main/div/div[2]/div/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[2]/div/div[1]/div[1]/div[1]/div[1]/div/span[2]/span/span/span/svg
-# /html/body/div[3]/div/div[1]/div/main/div/div[2]/div/div/div[1]/div[3]/div[2]/div[2]/div[3]/div/div[2]/div/div[1]/div[1]/div[1]/div[1]/div/span[2]/span/span/svg
-# /html/body/div[3]/div/div[1]/div/main/div/div[2]/div/div/div[1]/div[3]/div[2]/div[2]/div[7]/div/div[2]/div/div[1]/div[1]/div[1]/div[1]/div/span[2]/span/span/svg
-# /html/body/div[3]/div/div[1]/div/main/div/div[2]/div/div/div[1]/div[3]/div[4]/div[2]/div[4]/div/div[2]/div/div[1]/div[1]/div[1]/div[1]/div/span[2]/span/span/svg
-
-# /html/body/div[3]/div/div[1]/div/main/div/div[2]/div/div/div[1]/div[3]/div[2]/div[2]/div[3]/div/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div/span[2]/span/span[1]/svg
-
-
-
-# /html/body/main/div[1]/div[2]/div/div/div[1]/div[1]/div/div/div/div/div[1]/ul/li[1]/img
 # /html/body/main/div[1]/div[2]/div/div/div[1]/div[2]/div/div[4]/h1
+# /html/body/main/div[1]/div[2]/div/div/div[1]/div[2]/div/div[4]/h1
+
+# //*[@id="content"]/div/div[1]/div/div/div[2]/div[1]/div/img
