@@ -8,7 +8,8 @@ import urllib.request
 import os
 import tkinter as tk
 from selenium.webdriver.common.keys import Keys
-import sys
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class Order:
     def __init__(self, name, street, apartment, city, country, image, size, final, date, isStarted):
@@ -147,6 +148,7 @@ else:
 
 PATH = "C:\Program Files (x86)\msedgedriver.exe"
 driver = webdriver.Edge()
+wait = WebDriverWait(driver, 15)
 
 workbook = openpyxl.Workbook()
 sheet = workbook.active
@@ -162,20 +164,18 @@ workbook.save(f"./{folderPath}/{stringToday} excel/{stringToday}.xlsx")
 
 driver.get("https://www.etsy.com/")
 driver.maximize_window()
-time.sleep(0.1)
 
 signIn = driver.find_element(
     By.XPATH, "/html/body/div[2]/header/div[4]/nav/ul/li[1]/button")
 signIn.click()
-time.sleep(0.5)
+wait.until(EC.presence_of_element_located((By.XPATH, "//*[@id='join_neu_email_field']")))
 
 emailInput = driver.find_element(By.XPATH, "//*[@id='join_neu_email_field']")
 emailInput.send_keys("estveryin15@gmail.com")
-time.sleep(0.3)
+
 passwordInput = driver.find_element(
     By.XPATH, "//*[@id='join_neu_password_field']")
 passwordInput.send_keys("2022Th3005")
-time.sleep(0.3)
 
 signInButton = driver.find_element(
     By.XPATH, "/html/body/div[5]/div[2]/div/div[3]/div/div/div/div/div/div[2]/form/div[1]/div/div[7]/div/button")
@@ -186,13 +186,13 @@ try:
     driver.find_element(By.XPATH, "//*[@id='join-neu-overlay']")
     time.sleep(20)
 except:
-    time.sleep(3)
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
 
 
 shopManager = driver.find_element(
     By.XPATH, "//*[@id='gnav-header-inner']/div[4]/nav/ul/li[3]")
 shopManager.click()
-time.sleep(3)
+wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
 
 
 od = driver.find_element(
@@ -240,26 +240,29 @@ def start(cell_row_N):
                 order.isStarred = False
 
             # TASK 2*************************************************************************************************
-            data.click()
-            print("Clicked")
+            driver.find_element(By.XPATH, xpath + "/div/div[2]/div/div[2]/div[1]").click()
             a = 2
             original_window = driver.current_window_handle
             while True:
                 linkPath = "/html/body/div[3]/div/div[1]/div/main/div/div[3]/div[2]/div/div/div[9]/div/div/div[2]/table/tbody/tr[" + str(a)  + "]/td[1]/div[2]/div[2]/a"
 
                 try:
+                    # wait.until(EC.element_to_be_clickable((By.XPATH, linkPath)))
                     link = driver.find_element(By.XPATH, linkPath)
                 except:
                     try:
                         linkPath = "/html/body/div[3]/div/div[1]/div/main/div/div[3]/div[2]/div/div/div[10]/div/div/div[2]/table/tbody/tr[" + str(a)  + "]/td[1]/div[2]/div[2]/a"
                         link = driver.find_element(By.XPATH, linkPath)
                     except:
+                        if a == 2:
+                            print(f"Fotoğraf kaydedilemedi: Baştan {i}. ürün")
                         break
+                
                 link.click()
                 time.sleep(0.15)
                 driver.switch_to.window(driver.window_handles[1])
 
-                time.sleep(1)
+                wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
                 
                 try:
                     imgSrc = driver.find_element(By.XPATH, "/html/body/main/div[1]/div[2]/div/div/div[1]/div[1]/div/div/div/div/div[1]/ul/li[1]/img").get_attribute("src")
@@ -285,16 +288,15 @@ def start(cell_row_N):
                     print(fileName, "indirilemedi")
                     print("")
 
-                time.sleep(0.5)
 
                 driver.close()
                 driver.switch_to.window(original_window)
                 a += 1
             
             webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
-            time.sleep(0.2)
             # *************************************************************************************************
 
+            wait.until(EC.element_to_be_clickable((By.XPATH, xpath + "/div/div[2]/div[1]/div[2]/div[4]/div/div[1]/div/button")))
             delivertoBtn = driver.find_element(
                 By.XPATH, xpath + "/div/div[2]/div[1]/div[2]/div[4]/div/div[1]/div/button")
             delivertoBtn.click()
