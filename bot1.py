@@ -165,6 +165,8 @@ workbook.save(f"./{folderPath}/{stringToday} excel/{stringToday}.xlsx")
 driver.get("https://www.etsy.com/")
 driver.maximize_window()
 
+wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+
 signIn = driver.find_element(
     By.XPATH, "/html/body/div[2]/header/div[4]/nav/ul/li[1]/button")
 signIn.click()
