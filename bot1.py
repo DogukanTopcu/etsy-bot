@@ -173,11 +173,11 @@ signIn.click()
 wait.until(EC.presence_of_element_located((By.XPATH, "//*[@id='join_neu_email_field']")))
 
 emailInput = driver.find_element(By.XPATH, "//*[@id='join_neu_email_field']")
-emailInput.send_keys("estveryin15@gmail.com")
+emailInput.send_keys("EMAIL")
 
 passwordInput = driver.find_element(
     By.XPATH, "//*[@id='join_neu_password_field']")
-passwordInput.send_keys("2022Th3005")
+passwordInput.send_keys("PASSWORD")
 
 signInButton = driver.find_element(
     By.XPATH, "//*[@id='join-neu-form']/div[1]/div/div[7]/div/button")
