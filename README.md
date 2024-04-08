@@ -1,5 +1,5 @@
 # Etsy Bot 
-Etsy'deki mağazanızda günlük yapılan satışları toplayan ve excel tablosu oluşturan bir bot. Web scrapping ile etsy'de hesabınıza girip istediğiniz tarihler için o tarihte yapılan tüm satışları alır ve excel olarak çıktı verir.
+A bot that collects daily sales in your store on Etsy and creates an Excel table. With web scrapping, you can log into your Etsy account and retrieve all sales made on that date for the dates you want and output them as Excel.
 
 #### NOTES:
 - Make sure your web driver is up to date.
