@@ -121,7 +121,7 @@ submit_button.pack()
 root.mainloop()
 root.destroy()
 
-stringToday = str(whatMonth(dateObj.month)) + "." + dateObj.day + "." + dateObj.year
+stringToday = dateObj.day + "." + str(whatMonth(dateObj.month)) + "." + dateObj.year
 
 
 # New Director Path
@@ -180,7 +180,7 @@ passwordInput = driver.find_element(
 passwordInput.send_keys("2022Th3005")
 
 signInButton = driver.find_element(
-    By.XPATH, "/html/body/div[5]/div[2]/div/div[3]/div/div/div/div/div/div[2]/form/div[1]/div/div[7]/div/button")
+    By.XPATH, "//*[@id='join-neu-form']/div[1]/div/div[7]/div/button")
 signInButton.click()
 time.sleep(5)
 
@@ -267,9 +267,12 @@ def start(cell_row_N):
                 wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
                 
                 try:
-                    imgSrc = driver.find_element(By.XPATH, "/html/body/main/div[1]/div[2]/div/div/div[1]/div[1]/div/div/div/div/div[1]/ul/li[1]/img").get_attribute("src")
+                    # //*[@id="photos"]/div[2]/div[1]/ul/li[1]/img
+                    # //*[@id="listing-page-cart"]/div[3]/h1
+                    # //*[@id="photos"]/div[1]/div[1]/ul/li[1]/img
+                    imgSrc = driver.find_element(By.XPATH, "//*[@id='photos']/div[1]/div[1]/ul/li[1]/img").get_attribute("src")
                 except:
-                    imgSrc = driver.find_element(By.XPATH, "//*[@id='content']/div/div[1]/div/div/div[2]/div[1]/div/img")
+                    imgSrc = driver.find_element(By.XPATH, "//*[@id='photos']/div[2]/div[1]/ul/li[1]/img").get_attribute("src")
                 
                 try:
                     fileName = driver.find_element(By.XPATH, "/html/body/main/div[1]/div[2]/div/div/div[1]/div[2]/div/div[4]/h1").text
